@@ -1,5 +1,12 @@
 const express = require("express");
 const Podlet = require("@podium/podlet");
+const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config({
+  path: path.resolve(__dirname,`.env.${ process.env.NODE_ENV}`)
+});
+
 const fs = require("fs");
 
 const app = express();
@@ -17,13 +24,13 @@ const podlet = new Podlet({
 let vueCssAssets = fs.readdirSync('dist/css');
 vueCssAssets.forEach((element, index) => {
   if(element.indexOf('.css') !== -1 && element.indexOf('.css.map') === -1){
-    podlet.css({ value: "http://localhost:7100/css/" + element });
+    podlet.css({ value: `${process.env.URL}/css/${element}`});
   }
 });
 let vueJsAssets = fs.readdirSync('dist/js');
 vueJsAssets.forEach((element, index) => {
   if(element.indexOf('.js') !== -1 && element.indexOf('.js.map') === -1){
-    podlet.js({ value: "http://localhost:7100/js/" + element, defer: true });
+    podlet.js({ value: `${process.env.URL}/js/${element}`, defer: true });
   }
 });
 // create a static link to the files for demo purposes. 
@@ -45,4 +52,6 @@ app.get(podlet.manifest(), (req, res) => {
 });
 
 //start the app at port 7100
-app.listen(7100);
+const appPort = 7100;
+app.set('port', process.env.PORT || appPort);
+
